@@ -1,7 +1,9 @@
 **Introduction**
+
 FuseDream usa GANs pré-treinados (apoiamos BigGAN-256 e BigGAN-512 por enquanto) e CLIP para obter geração de texto para imagem de alta fidelidade.
 
 **Requirements**
+
 Use pip ou conda para instalar os sguintes packages: PyTorch==1.7.1, torchvision==0.8.2, lpips==0.1.4 e os requerimentos de BigGAN.
 
 Colab: https://colab.research.google.com/drive/1j6-uF0k6UdcKsutZVCpeNtPKmT7UWw2d#scrollTo=EXMSuW2EQWsd
