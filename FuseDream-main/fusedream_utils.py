@@ -16,6 +16,8 @@ TEST_POLICY = 'color,translation,resize,cutout'
 mean = torch.tensor([0.48145466, 0.4578275, 0.40821073]).cuda()
 std = torch.tensor([0.26862954, 0.26130258, 0.27577711]).cuda()
 
+###Uma função que calcula uma perda de conceito com base em uma imagem, modelo CLIP e uma descrição de texto. Ele realiza aumento de dados na imagem de entrada, normaliza-a e calcula a perda de conceito usando CLIP.
+Função 
 def AugmentLoss(img, clip_model, text, replicate=10, interp_mode='bilinear', policy=POLICY):
 
     clip_c = clip_model.logit_scale.exp()
@@ -30,6 +32,8 @@ def AugmentLoss(img, clip_model, text, replicate=10, interp_mode='bilinear', pol
      
     return concept_loss.mean(dim=0, keepdim=False)
 
+###Outra função que calcula uma perda de conceito, semelhante a AugmentLoss, mas sem aumento de dados. Ele processa a imagem e o texto de entrada usando CLIP e retorna a perda de conceito.
+Função 
 def NaiveSemanticLoss(img, clip_model, text, interp_mode='bilinear'):
 
     clip_c = clip_model.logit_scale.exp()
@@ -43,6 +47,7 @@ def NaiveSemanticLoss(img, clip_model, text, interp_mode='bilinear'):
      
     return concept_loss.mean(dim=0, keepdim=False)
 
+###Uma função que gera uma máscara gaussiana 2D.
 def get_gaussian_mask(size=256):
     x, y = np.meshgrid(np.linspace(-1,1, size), np.linspace(-1,1,size))
     dst = np.sqrt(x*x+y*y)
@@ -65,6 +70,8 @@ def save_image(img, path, n_per_row=1):
             normalize=True,
         )
 
+###Função que retorna um modelo gerador BigGAN, seja para resolução de 256x256 ou 512x512. Carrega os pesos do modelo e define diversas opções de configuração.
+Classe.
 def get_G(resolution=256):
     if resolution == 256:
         parser = utils.prepare_parser()
@@ -141,6 +148,7 @@ def get_G(resolution=256):
 
     return G, config
 
+###Esta classe parece ser o núcleo do código. É utilizado para gerar e otimizar imagens baseadas em CLIP e BigGAN. O construtor da classe inicializa o gerador BigGAN, o modelo CLIP e outros parâmetros.
 class FuseDreamBaseGenerator():
     def __init__(self, G, G_config, G_batch_size=10, clip_mode="ViT-B/32", interp_mode='bilinear'):
 
@@ -166,7 +174,8 @@ class FuseDreamBaseGenerator():
             p.requires_grad = False
 
         self.interp_mode = interp_mode 
-  
+
+    ###Este método gera uma base para geração de imagens. Ele amostra repetidamente vetores de ruído aleatórios, gera imagens e as classifica com base em suas pontuações CLIP. Ele retorna uma lista de vetores de ruído iniciais e rótulos de classe.
     def generate_basis(self, text, init_iters=500, num_basis=5):
         text_tok = clip.tokenize([text]).to(self.device)
         clip_c = self.clip_model.logit_scale.exp() 
@@ -214,7 +223,7 @@ class FuseDreamBaseGenerator():
 
         return z_init_cllt, y_init_cllt
 
-
+    ###Este método otimiza a pontuação CLIP para um conjunto de vetores de ruído iniciais e rótulos de classe. Ele usa uma combinação de otimização baseada em gradiente e injeção de ruído para encontrar uma imagem que maximize a pontuação CLIP.
     def optimize_clip_score(self, z_init_cllt, y_init_cllt, text, latent_noise=False, augment=True, opt_iters=500, optimize_y=False):
 
         text_tok = clip.tokenize([text]).to(self.device)
@@ -288,6 +297,7 @@ class FuseDreamBaseGenerator():
         #save_image(self.G(z_init_ans, y_init_ans), 'samples/opt_%s.png'%text, 1)
         return self.G(z_init_ans, y_init_ans), z_init_ans, y_init_ans    
 
+    ###Este método mede a perda de CLIP de uma determinada imagem e texto. Pode ser usado para avaliar a qualidade da imagem gerada.
     def measureAugCLIP(self, z, y, text, augment=False, num_samples=20):
         text_tok = clip.tokenize([text]).to(self.device)
         avg_loss = 0.0
