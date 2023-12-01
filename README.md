@@ -1,6 +1,7 @@
 **Introduction**
 
 FuseDream usa GANs pré-treinados (apoiamos BigGAN-256 e BigGAN-512 por enquanto) e CLIP para obter geração de texto para imagem de alta fidelidade.
+Código feito pela FuseDream utilizado para fins universitarios.
 
 **Requirements**
 
